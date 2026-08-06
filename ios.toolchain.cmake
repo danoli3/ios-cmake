@@ -1110,7 +1110,9 @@ set(CMAKE_SHARED_LIBRARY_SONAME_C_FLAG "-install_name")
 # Set the find root to the SDK developer roots.
 # Note: CMAKE_FIND_ROOT_PATH is only useful when cross-compiling. Thus, do not set on macOS builds.
 if(NOT PLATFORM_INT MATCHES "^MAC.*$")
-  list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_OSX_SYSROOT_INT}" CACHE INTERNAL "")
+  list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_OSX_SYSROOT_INT}")
+  list(REMOVE_DUPLICATES CMAKE_FIND_ROOT_PATH)
+  set(CMAKE_FIND_ROOT_PATH "${CMAKE_FIND_ROOT_PATH}" CACHE INTERNAL "")
   set(CMAKE_IGNORE_PATH "/System/Library/Frameworks;/usr/local/lib;/opt/homebrew" CACHE INTERNAL "")
 endif()
 
