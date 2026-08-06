@@ -70,8 +70,8 @@
 #    VISIONOSCOMBINED = Build for arm64 visionOS + visionOS Simulator. Combined into FAT STATIC lib (only supported on 3.14+ of CMake with "-G Xcode" argument in combination with the "cmake --install" CMake build step)
 #    VISIONOS = Build for arm64 visionOS.
 #    SIMULATOR_VISIONOS = Build for arm64 visionOS Simulator.
-#    WATCHOS = Build for armv7k arm64_32 for watchOS.
-#    WATCHOSCOMBINED = Build for armv7k arm64_32 x86_64 watchOS + watchOS Simulator. Combined into FAT STATIC lib (only supported on 3.14+ of CMake with "-G Xcode" argument in combination with the "cmake --install" CMake build step)
+#    WATCHOS = Build for arm64 armv7k arm64_32 for watchOS.
+#    WATCHOSCOMBINED = Build for arm64 armv7k arm64_32 x86_64 watchOS + watchOS Simulator. Combined into FAT STATIC lib (only supported on 3.14+ of CMake with "-G Xcode" argument in combination with the "cmake --install" CMake build step)
 #    SIMULATOR_WATCHOS = Build for x86_64 for watchOS Simulator.
 #    SIMULATORARM64_WATCHOS = Build for arm64 for watchOS Simulator.
 #    SIMULATOR_WATCHOSCOMBINED = Build for arm64 x86_64 for watchOS Simulator. Combined into FAT STATIC lib (supported on 3.14+ of CMakewith "-G Xcode" argument ONLY)
@@ -117,7 +117,7 @@
 #    TVOS = arm64
 #    SIMULATOR_TVOS = x86_64 (i386 has since long been deprecated)
 #    SIMULATORARM64_TVOS = arm64
-#    WATCHOS = armv7k arm64_32 (if applicable)
+#    WATCHOS = arm64 armv7k arm64_32 (if applicable)
 #    SIMULATOR_WATCHOS = x86_64 (i386 has since long been deprecated)
 #    SIMULATORARM64_WATCHOS = arm64
 #    MAC = x86_64
@@ -447,7 +447,12 @@ elseif(PLATFORM_INT STREQUAL "SIMULATORARM64_TVOS")
 elseif(PLATFORM_INT STREQUAL "WATCHOS")
   set(SDK_NAME watchos)
   if(NOT ARCHS)
-    if (XCODE_VERSION_INT VERSION_GREATER 10.0)
+    if (XCODE_VERSION_INT VERSION_GREATER_EQUAL 15.0)
+      # arm64 devices (Apple Watch Series 9/Ultra 2 and later) are supported from the watchOS 10 SDK and onwards.
+      # Apple requires arm64 support in watchOS apps submitted from April 2026.
+      set(ARCHS arm64 armv7k arm64_32)
+      set(APPLE_TARGET_TRIPLE_INT arm64-apple-watchos${DEPLOYMENT_TARGET})
+    elseif (XCODE_VERSION_INT VERSION_GREATER 10.0)
       set(ARCHS armv7k arm64_32)
       set(APPLE_TARGET_TRIPLE_INT arm64_32-apple-watchos${DEPLOYMENT_TARGET})
     else()
@@ -461,7 +466,16 @@ elseif(PLATFORM_INT STREQUAL "WATCHOSCOMBINED")
   set(SDK_NAME watchos)
   if(MODERN_CMAKE)
     if(NOT ARCHS)
-      if (XCODE_VERSION_INT VERSION_GREATER 10.0)
+      if (XCODE_VERSION_INT VERSION_GREATER_EQUAL 15.0)
+        # arm64 devices (Apple Watch Series 9/Ultra 2 and later) are supported from the watchOS 10 SDK and onwards.
+        # Apple requires arm64 support in watchOS apps submitted from April 2026.
+        set(ARCHS arm64 armv7k arm64_32 x86_64)
+        set(APPLE_TARGET_TRIPLE_INT arm64-x86_64-apple-watchos${DEPLOYMENT_TARGET})
+        set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=watchos*] "arm64 armv7k arm64_32")
+        set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=watchsimulator*] "x86_64 arm64")
+        set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=watchos*] "arm64 armv7k arm64_32")
+        set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=watchsimulator*] "x86_64 arm64")
+      elseif (XCODE_VERSION_INT VERSION_GREATER 10.0)
         set(ARCHS armv7k arm64_32 x86_64)
         set(APPLE_TARGET_TRIPLE_INT arm64_32-x86_64-apple-watchos${DEPLOYMENT_TARGET})
         set(CMAKE_XCODE_ATTRIBUTE_ARCHS[sdk=watchos*] "armv7k arm64_32")
