@@ -609,6 +609,12 @@ if(CMAKE_GENERATOR MATCHES "Xcode" AND PLATFORM_INT MATCHES "^MAC_CATALYST")
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
   set(CMAKE_XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS "macosx")
   set(CMAKE_XCODE_ATTRIBUTE_SUPPORTS_MACCATALYST "YES")
+  # Build the Mac Catalyst variant by default instead of plain macOS, so that the correct
+  # -target <arch>-apple-ios<version>-macabi triple and the iOSSupport header/framework
+  # search paths are used without having to pass an explicit xcodebuild -destination.
+  set(CMAKE_XCODE_ATTRIBUTE_SDK_VARIANT "iosmac")
+  # The minimum version of a Catalyst build is driven by the iOS deployment target.
+  set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "${DEPLOYMENT_TARGET}")
   if(NOT DEFINED MACOSX_DEPLOYMENT_TARGET)
     set(CMAKE_XCODE_ATTRIBUTE_MACOSX_DEPLOYMENT_TARGET "10.15")
   else()
